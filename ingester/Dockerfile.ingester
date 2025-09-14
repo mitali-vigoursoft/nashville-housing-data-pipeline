@@ -1,0 +1,14 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# copy requirement file and install python deps
+COPY requirements.txt /app/requirements.txt
+RUN python -m pip install --upgrade pip
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# copy project files
+COPY . /app
+
+# default command sleeps; we'll run the script explicitly with docker compose run
+CMD ["sleep", "infinity"]

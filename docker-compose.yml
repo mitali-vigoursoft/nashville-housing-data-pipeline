@@ -1,0 +1,41 @@
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_container
+    env_file: .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_custom:/var/lib/postgresql/data
+    command: postgres
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+  ingester:
+    build:
+      context: .
+      dockerfile: ingester/Dockerfile.ingester
+    container_name: data_ingester
+    volumes:
+      - .:/app
+
+    working_dir: /app
+    env_file: .env
+    depends_on:
+      - db
+    # Do not auto-run; we'll run it on demand with docker compose run (safer)
+    entrypoint: ["/bin/sh","-c","while true; do sleep 3600; done"]
+    
+volumes:
+  pgdata_custom:
